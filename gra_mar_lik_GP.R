@@ -15,18 +15,20 @@ gra_mar_lik_GP <- function(s2,
   ##############################################################################
   # Gradient
   # Covariance Function
-  K    <- t2 * exp(- DM / (2 * l2))
-  eC   <- eigen(K + s2 * diag(nrow = N))
-  iC   <- solve(K + s2 * diag(nrow = N))
+  eD <- exp(- DM / (2 * l2))
+  K  <- t2 * eD
+  C  <- K + s2 * diag(nrow = N)
+  iC <- solve(C)
+  Cy <- iC %*% y
   # Derivative s2
-  g_s2 <-        sum(1 / eC$values) / 2
-  g_s2 <- g_s2 - t(y) %*% eC$vectors %*% diag(1 / eC$values^2) %*% t(eC$vectors) %*% y / 2
+  g_s2 <-      - sum(diag(iC)) / 2
+  g_s2 <- g_s2 + t(Cy) %*% Cy / 2
   # Derivative t2
-  g_t2 <-        sum(diag(solve(K + s2 * diag(nrow = N), K / t2))) / 2
-  g_t2 <- g_t2 - t(y) %*% eC$vectors %*% diag(1 / eC$values^2) %*% t(eC$vectors) %*% K %*% y / (2 * t2)
+  g_t2 <-      - sum(diag(iC %*% eD)) / 2
+  g_t2 <- g_t2 + t(Cy) %*% eD %*% Cy /2
   # Derivative t2
-  g_l2 <-        sum(diag(solve(K + s2 * diag(nrow = N), (K * DM / (2 * l2^2)) ))) / 2
-  g_l2 <- g_l2 - t(y) %*% iC %*% (K * DM / (2 * l2^2)) %*% iC %*% y / 2
+  g_l2 <-      - sum(diag(iC %*% (K * DM / (2 * l2^2)))) / 2
+  g_l2 <- g_l2 + t(Cy) %*% (K * DM / (2 * l2^2)) %*% Cy / 2
   ##############################################################################
   
   ##############################################################################
