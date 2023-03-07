@@ -9,13 +9,14 @@
 # Dimensions
 D <- 1
 # Grid Size
-grid_size <- rep(10, D)
+grid_size <- rep(1, D)
 # Number of Points
-N <- 200
+M <- 4
+N <- 5
 # Variance
-s2  <- 1 / 2
-t2  <- 2
-l2  <- 1 / 2
+s2  <- (1 / 2)^2
+t2  <- (1 / 2)^2
+l2  <- (1 / 2)^2
 ################################################################################
 
 ################################################################################
@@ -25,6 +26,10 @@ for(n in 1:N){
   for(d in 1:D){
     S[n, d] <- runif(n = 1, max = grid_size[d])
   }
+}
+Sk <- matrix(data = NA, nrow = M, ncol = D)
+for(d in 1:D){
+  Sk[, d] <- seq(0, grid_size[d], length.out = M)
 }
 ################################################################################
 
@@ -36,12 +41,27 @@ for(n in 1:N){
     DM[n, nn] <- sum((S[n, ] - S[nn, ])^2)
   }
 }
+DM  <- sqrt(DM)
+Dkk <- matrix(data = 0, nrow = M, ncol = M)
+for(m in 1:M){
+  for(mm in 1:M){
+    Dkk[m, mm] <- sum((Sk[m, ] - Sk[mm, ])^2)
+  }
+}
+Dkk <- sqrt(Dkk)
+Dks <- matrix(data = 0, nrow = M, ncol = N)
+for(m in 1:M){
+  for(n in 1:N){
+    Dks[m, n] <- sum((Sk[m, ] - S[n, ])^2)
+  }
+}
+sqrt(Dks)
 ################################################################################
 
 ################################################################################
 # Simulates
 # Covariance Matrix
-Soo <- t2 * exp(- DM / (2 * l2))
+Soo <- t2 * exp(- DM / l2)
 # Simulates Observations
 y   <- as.vector(mvtnorm::rmvnorm(n = 1, sigma = Soo + s2 * diag(nrow = N)))
 ################################################################################
@@ -50,8 +70,8 @@ y   <- as.vector(mvtnorm::rmvnorm(n = 1, sigma = Soo + s2 * diag(nrow = N)))
 # Plots
 if(D == 1){
   # Plotting Dimensions
-  ymax <- max(   2)
-  ymin <- min(  -2)
+  ymax <- max(   3)
+  ymin <- min(  -3)
   # Plotting Order
   o    <- order(S[,1])
   # Plots
